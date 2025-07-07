@@ -1,0 +1,26 @@
+
+version: '3.8'
+services:
+  casparcg:
+    image: ghcr.io/casparcg/server:2.4.0-lts
+    network_mode: host
+    volumes:
+      - ./caspar/config:/config
+    environment:
+      - DISPLAY=:0
+
+  ffmpeg-bridge:
+    image: jrottenberg/ffmpeg:7.0-ubuntu
+    network_mode: host
+    command: >
+      -re -i srt://0.0.0.0:9999
+      -c:v copy -c:a copy
+      -f libndi_newtek "remote_srt"
+
+  caspar-manager:
+    build:
+      context: ./server
+    ports:
+      - "3000:3000"
+    environment:
+      - CASPAR_HOST=localhost
